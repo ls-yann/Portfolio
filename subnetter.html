@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subnetter | Yann.LS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --neon: #D50032;
+      --neon-dim: #a80028;
+      --bg: #0a0a0a;
+      --bg-card: #111111;
+      --border: #222222;
+      --text: #e0e0e0;
+      --text-dim: #888888;
+      --accent: #7B61FF;
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f0f0;
+      --bg-card: #ffffff;
+      --border: #d0d0d0;
+      --text: #1a1a1a;
+      --text-dim: #555555;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 3px; }
+
+    /* ========== HEADER ========== */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 0.8rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 10, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    [data-theme="light"] header {
+      background: rgba(240, 240, 240, 0.9);
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: var(--neon);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: var(--neon);
+      border-color: var(--neon);
+    }
+
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .lang-toggle button {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 0.45rem 0.8rem;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .lang-toggle button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .lang-toggle button:hover:not(.active) { color: var(--text); }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--neon);
+      color: var(--neon);
+    }
+
+    /* ========== HERO ========== */
+    .tool-hero {
+      padding: 8rem 3rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .tool-breadcrumb {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .tool-breadcrumb a {
+      color: var(--neon);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .tool-breadcrumb a:hover { opacity: 0.7; }
+
+    .tool-breadcrumb-sep { color: var(--border); }
+
+    .tool-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+
+    .tool-title span {
+      color: var(--neon);
+    }
+
+    .tool-subtitle {
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .tool-subtitle-tag {
+      padding: 0.2rem 0.7rem;
+      border: 1px solid var(--neon);
+      color: var(--neon);
+      border-radius: 2px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+    }
+
+    .tool-description {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+      max-width: 580px;
+      border-left: 2px solid var(--neon);
+      padding-left: 1.2rem;
+    }
+
+    /* ========== TOOL SECTION ========== */
+    .tool-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 3rem 6rem;
+    }
+
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .tool-card-header {
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .tool-card-header-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon);
+      box-shadow: 0 0 6px var(--neon);
+    }
+
+    .tool-card-header span {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .tool-card-body {
+      padding: 2rem;
+    }
+
+    /* ========== FORM ========== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .form-hint {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      opacity: 0.6;
+      margin-top: 0.2rem;
+    }
+
+    .form-input {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 0.8rem 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--neon);
+      box-shadow: 0 0 0 2px rgba(213, 0, 50, 0.12);
+    }
+
+    .form-input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+    .form-input::-webkit-inner-spin-button,
+    .form-input::-webkit-outer-spin-button {
+      opacity: 0.4;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-calculate {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.9rem 2.5rem;
+      border: 1px solid var(--neon);
+      background: var(--neon);
+      color: #fff;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-calculate:hover {
+      background: transparent;
+      color: var(--neon);
+      box-shadow: 0 0 20px rgba(213, 0, 50, 0.25);
+    }
+
+    .btn-reset {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.9rem 1.5rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+
+    /* ========== ERROR ========== */
+    .error-box {
+      display: none;
+      background: rgba(213, 0, 50, 0.08);
+      border: 1px solid rgba(213, 0, 50, 0.4);
+      border-radius: 2px;
+      padding: 1rem 1.2rem;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--neon);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .error-box.hidden { display: none !important; }
+
+    .error-icon { font-size: 1rem; flex-shrink: 0; }
+
+    /* ========== RESULTS ========== */
+    #results-section {
+      display: none;
+    }
+
+    #results-section.visible {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-summary {
+      padding: 1.2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .results-summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .results-summary-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .results-summary-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--neon);
+    }
+
+    .results-grid {
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .results-grid { grid-template-columns: 1fr; padding: 1rem; }
+      .results-summary { padding: 1rem; }
+      .tool-card-body { padding: 1.2rem; }
+      .tool-hero { padding: 7rem 1.5rem 3rem; }
+      .tool-section { padding: 0 1.5rem 4rem; }
+    }
+
+    .subnet-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .subnet-card:hover { border-color: rgba(213, 0, 50, 0.4); }
+
+    .subnet-card-header {
+      padding: 0.6rem 1rem;
+      background: rgba(213, 0, 50, 0.07);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .subnet-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon);
+    }
+
+    .subnet-cidr {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'Space Grotesk', monospace;
+    }
+
+    .subnet-rows {
+      padding: 0.8rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .subnet-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      gap: 0.5rem;
+    }
+
+    .subnet-row-label {
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .subnet-row-value {
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .subnet-row-value.highlight { color: var(--neon); }
+
+    .subnet-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.2rem 0;
+    }
+
+    /* ========== FOOTER ========== */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .footer-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link:hover { color: var(--neon); }
+
+    /* ========== DECORATIVE ========== */
+    .corner-deco {
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .corner-deco.top-left {
+      top: 0; left: 0;
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+    }
+
+    .corner-deco.bottom-right {
+      bottom: 0; right: 0;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="corner-deco top-left"></div>
+  <div class="corner-deco bottom-right"></div>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="logo">YANN.LS</a>
+    <div class="header-right">
+      <a href="index.html#mes-scripts" class="back-link" data-fr="&larr; Retour" data-en="&larr; Back">&larr; Retour</a>
+      <div class="lang-toggle">
+        <button id="lang-fr" class="active" onclick="setLang('fr')">FR</button>
+        <button id="lang-en" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Mode clair/sombre">&#9790;</button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="tool-hero">
+    <div class="tool-breadcrumb">
+      <a href="index.html#mes-scripts" data-fr="Scripts" data-en="Scripts">Scripts</a>
+      <span class="tool-breadcrumb-sep">/</span>
+      <span>Subnetter</span>
+    </div>
+    <h1 class="tool-title">Sub<span>netter</span></h1>
+    <div class="tool-subtitle">
+      <span data-fr="Outil r&eacute;seau" data-en="Network tool">Outil r&eacute;seau</span>
+      <span class="tool-subtitle-tag">Python</span>
+      <span class="tool-subtitle-tag">IPv4</span>
+    </div>
+    <p class="tool-description" data-fr="Script Python que j&rsquo;ai cod&eacute; pour diviser un r&eacute;seau IP en sous-r&eacute;seaux. Il calcule automatiquement les adresses r&eacute;seau, masques, passerelles, adresses de broadcast et plages d&rsquo;h&ocirc;tes pour chaque sous-r&eacute;seau. Je m&rsquo;en sers r&eacute;guli&egrave;rement dans mes cours et travaux pratiques en r&eacute;seau." data-en="A Python script I coded to split an IP network into subnets. It automatically computes network addresses, masks, gateways, broadcast addresses, and host ranges for each subnet. I use it regularly in my network courses and practical lab work.">Script Python que j&rsquo;ai cod&eacute; pour diviser un r&eacute;seau IP en sous-r&eacute;seaux. Il calcule automatiquement les adresses r&eacute;seau, masques, passerelles, adresses de broadcast et plages d&rsquo;h&ocirc;tes pour chaque sous-r&eacute;seau. Je m&rsquo;en sers r&eacute;guli&egrave;rement dans mes cours et travaux pratiques en r&eacute;seau.</p>
+  </div>
+
+  <!-- Tool -->
+  <div class="tool-section">
+
+    <!-- Form card -->
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <div class="tool-card-header-dot"></div>
+        <span data-fr="Param&egrave;tres" data-en="Parameters">Param&egrave;tres</span>
+      </div>
+      <div class="tool-card-body">
+        <form id="subnet-form" onsubmit="handleSubmit(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="network-input" data-fr="Adresse r&eacute;seau (CIDR)" data-en="Network address (CIDR)">Adresse r&eacute;seau (CIDR)</label>
+              <input
+                class="form-input"
+                type="text"
+                id="network-input"
+                placeholder="192.168.1.0/24"
+                autocomplete="off"
+                spellcheck="false"
+              >
+              <span class="form-hint" data-fr="Exemple&nbsp;: 10.0.0.0/8 &nbsp;&bull;&nbsp; 172.16.0.0/16 &nbsp;&bull;&nbsp; 192.168.0.0/24" data-en="Example: 10.0.0.0/8 &nbsp;&bull;&nbsp; 172.16.0.0/16 &nbsp;&bull;&nbsp; 192.168.0.0/24">Exemple&nbsp;: 10.0.0.0/8 &nbsp;&bull;&nbsp; 172.16.0.0/16 &nbsp;&bull;&nbsp; 192.168.0.0/24</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="subnets-input" data-fr="Nombre de sous-r&eacute;seaux" data-en="Number of subnets">Nombre de sous-r&eacute;seaux</label>
+              <input
+                class="form-input"
+                type="number"
+                id="subnets-input"
+                min="2"
+                max="64"
+                value="4"
+                placeholder="4"
+              >
+              <span class="form-hint" data-fr="Entre 2 et 64" data-en="Between 2 and 64">Entre 2 et 64</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-calculate" data-fr="Calculer" data-en="Calculate">Calculer</button>
+            <button type="button" class="btn-reset" onclick="resetForm()" data-fr="R&eacute;initialiser" data-en="Reset">R&eacute;initialiser</button>
+          </div>
+          <div id="error-box" class="error-box hidden">
+            <span class="error-icon">&#9888;</span>
+            <span id="error-msg"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results card -->
+    <div class="tool-card" id="results-section">
+      <div class="tool-card-header">
+        <div class="tool-card-header-dot"></div>
+        <span data-fr="R&eacute;sultats" data-en="Results">R&eacute;sultats</span>
+      </div>
+      <div class="results-summary" id="results-summary"></div>
+      <div class="results-grid" id="results-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <span>&copy; 2026 YANN.LS</span>
+    <a href="index.html" class="footer-link" data-fr="Retour au portfolio" data-en="Back to portfolio">Retour au portfolio</a>
+  </footer>
+
+  <script>
+    // ========== SUBNET LOGIC ==========
+
+    function ipToNum(ip) {
+      const parts = ip.split('.');
+      if (parts.length !== 4) throw new Error('IP invalide');
+      return parts.reduce((acc, part) => {
+        const n = parseInt(part, 10);
+        if (isNaN(n) || n < 0 || n > 255) throw new Error('IP invalide');
+        return (acc * 256 + n) >>> 0;
+      }, 0);
+    }
+
+    function numToIP(num) {
+      return [24, 16, 8, 0].map(s => (num >>> s) & 0xFF).join('.');
+    }
+
+    function computeSubnets(cidr, numSubnets) {
+      const parts = cidr.trim().split('/');
+      if (parts.length !== 2) {
+        throw new Error(currentLang === 'fr'
+          ? 'Format invalide. Utilisez la notation CIDR (ex : 192.168.1.0/24)'
+          : 'Invalid format. Use CIDR notation (e.g. 192.168.1.0/24)');
+      }
+
+      const prefix = parseInt(parts[1], 10);
+      if (isNaN(prefix) || prefix < 0 || prefix > 32) {
+        throw new Error(currentLang === 'fr'
+          ? 'Masque invalide (doit être entre /0 et /32)'
+          : 'Invalid mask (must be between /0 and /32)');
+      }
+
+      const ipNum = ipToNum(parts[0].trim());
+      const mask = prefix === 0 ? 0 : ((0xFFFFFFFF << (32 - prefix)) >>> 0);
+      const networkNum = (ipNum & mask) >>> 0;
+
+      const bitsNeeded = Math.ceil(Math.log2(Math.max(numSubnets, 2)));
+      const newPrefix = prefix + bitsNeeded;
+
+      if (newPrefix > 32) {
+        throw new Error(currentLang === 'fr'
+          ? `Impossible de créer ${numSubnets} sous-réseaux depuis /${prefix}. Le nouveau préfixe serait /${newPrefix} (> /32).`
+          : `Cannot create ${numSubnets} subnets from /${prefix}. The new prefix would be /${newPrefix} (> /32).`);
+      }
+
+      const subnetSize = Math.pow(2, 32 - newPrefix);
+      const subnetMask = newPrefix === 0 ? 0 : ((0xFFFFFFFF << (32 - newPrefix)) >>> 0);
+      const actualSubnets = Math.pow(2, bitsNeeded);
+      const results = [];
+
+      for (let i = 0; i < numSubnets; i++) {
+        const net = (networkNum + i * subnetSize) >>> 0;
+        const bcast = (net + subnetSize - 1) >>> 0;
+        const gw = (net + 1) >>> 0;
+        const numHosts = Math.max(0, subnetSize - 2);
+
+        results.push({
+          index: i + 1,
+          network: numToIP(net),
+          prefix: newPrefix,
+          mask: numToIP(subnetMask),
+          broadcast: numToIP(bcast),
+          gateway: numToIP(gw),
+          numHosts,
+          firstHost: numHosts > 0 ? numToIP(gw) : null,
+          lastHost: numHosts > 1 ? numToIP((bcast - 1) >>> 0) : (numHosts === 1 ? numToIP(gw) : null),
+        });
+      }
+
+      return { results, actualSubnets, newPrefix };
+    }
+
+    // ========== UI HANDLERS ==========
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      hideError();
+
+      const networkVal = document.getElementById('network-input').value.trim();
+      const subnetsVal = parseInt(document.getElementById('subnets-input').value, 10);
+
+      if (!networkVal) {
+        showError(currentLang === 'fr' ? 'Veuillez entrer une adresse réseau.' : 'Please enter a network address.');
+        return;
+      }
+
+      if (isNaN(subnetsVal) || subnetsVal < 2) {
+        showError(currentLang === 'fr' ? 'Le nombre de sous-réseaux doit être au moins 2.' : 'The number of subnets must be at least 2.');
+        return;
+      }
+
+      if (subnetsVal > 64) {
+        showError(currentLang === 'fr' ? 'Maximum 64 sous-réseaux.' : 'Maximum 64 subnets.');
+        return;
+      }
+
+      try {
+        const { results, actualSubnets, newPrefix } = computeSubnets(networkVal, subnetsVal);
+        renderResults(networkVal, results, actualSubnets, newPrefix, subnetsVal);
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+
+    function renderResults(networkStr, results, actualSubnets, newPrefix, requested) {
+      const section = document.getElementById('results-section');
+      const summary = document.getElementById('results-summary');
+      const grid = document.getElementById('results-grid');
+
+      const isEn = currentLang === 'en';
+      const note = actualSubnets > requested
+        ? `<span style="font-size:0.7rem;color:var(--text-dim);margin-left:auto;">${isEn ? `(${requested} of ${actualSubnets} shown)` : `(${requested} affichés sur ${actualSubnets} créés)`}</span>`
+        : '';
+
+      summary.innerHTML = `
+        <div class="results-summary-item">
+          <span class="results-summary-label">${isEn ? 'Network' : 'Réseau'}</span>
+          <span class="results-summary-value">${networkStr.split('/')[0]}/${parseInt(networkStr.split('/')[1], 10)}</span>
+        </div>
+        <div class="results-summary-item">
+          <span class="results-summary-label">${isEn ? 'New prefix' : 'Nouveau préfixe'}</span>
+          <span class="results-summary-value">/${newPrefix}</span>
+        </div>
+        <div class="results-summary-item">
+          <span class="results-summary-label">${isEn ? 'Subnets' : 'Sous-réseaux'}</span>
+          <span class="results-summary-value">${requested}</span>
+        </div>
+        <div class="results-summary-item">
+          <span class="results-summary-label">${isEn ? 'Hosts / subnet' : 'Hôtes / sous-réseau'}</span>
+          <span class="results-summary-value">${results[0]?.numHosts ?? 0}</span>
+        </div>
+        ${note}
+      `;
+
+      grid.innerHTML = results.map(s => `
+        <div class="subnet-card">
+          <div class="subnet-card-header">
+            <span class="subnet-number">${isEn ? 'Subnet' : 'Sous-réseau'} ${s.index}</span>
+            <span class="subnet-cidr">${s.network}/${s.prefix}</span>
+          </div>
+          <div class="subnet-rows">
+            <div class="subnet-row">
+              <span class="subnet-row-label">${isEn ? 'Network' : 'Réseau'}</span>
+              <span class="subnet-row-value highlight">${s.network}/${s.prefix}</span>
+            </div>
+            <div class="subnet-row">
+              <span class="subnet-row-label">Masque</span>
+              <span class="subnet-row-value">${s.mask}</span>
+            </div>
+            <div class="subnet-divider"></div>
+            <div class="subnet-row">
+              <span class="subnet-row-label">Broadcast</span>
+              <span class="subnet-row-value">${s.broadcast}</span>
+            </div>
+            <div class="subnet-row">
+              <span class="subnet-row-label">Gateway</span>
+              <span class="subnet-row-value">${s.gateway}</span>
+            </div>
+            <div class="subnet-divider"></div>
+            <div class="subnet-row">
+              <span class="subnet-row-label">${isEn ? 'Hosts' : 'Hôtes'}</span>
+              <span class="subnet-row-value">${s.numHosts}</span>
+            </div>
+            ${s.firstHost ? `
+            <div class="subnet-row">
+              <span class="subnet-row-label">${isEn ? 'Range' : 'Plage'}</span>
+              <span class="subnet-row-value" style="font-size:0.75rem;">${s.firstHost}${s.lastHost && s.lastHost !== s.firstHost ? ` &rarr; ${s.lastHost}` : ''}</span>
+            </div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      section.classList.add('visible');
+      section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      document.getElementById('error-msg').textContent = msg;
+      box.classList.remove('hidden');
+    }
+
+    function hideError() {
+      document.getElementById('error-box').classList.add('hidden');
+    }
+
+    function resetForm() {
+      document.getElementById('network-input').value = '';
+      document.getElementById('subnets-input').value = '4';
+      hideError();
+      const section = document.getElementById('results-section');
+      section.classList.remove('visible');
+    }
+
+    // ========== LANGUAGE ==========
+    let currentLang = 'fr';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
+      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+      document.querySelectorAll('[data-fr]').forEach(el => {
+        const text = el.getAttribute(`data-${lang}`);
+        if (text) el.innerHTML = text;
+      });
+    }
+
+    // ========== THEME ==========
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('theme-toggle');
+      if (html.getAttribute('data-theme') === 'light') {
+        html.removeAttribute('data-theme');
+        btn.innerHTML = '&#9790;';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        html.setAttribute('data-theme', 'light');
+        btn.innerHTML = '&#9728;';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('theme-toggle').innerHTML = '&#9728;';
+    }
+
+    // Sync lang from portfolio if stored
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang === 'en') setLang('en');
+
+    // Persist lang choice
+    document.getElementById('lang-fr').addEventListener('click', () => localStorage.setItem('lang', 'fr'));
+    document.getElementById('lang-en').addEventListener('click', () => localStorage.setItem('lang', 'en'));
+  </script>
+</body>
+</html>
